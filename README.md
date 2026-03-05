@@ -1,0 +1,236 @@
+# Face Library
+
+**Secure AI Likeness Licensing Infrastructure**
+
+Face Library is a permission and monetization layer for human identity in generative AI. It enables talent (actors, models, public figures) to control how their likeness is used by brands and AI systems, with AI agents handling compliance, negotiation, contract generation, and audit -- end to end.
+
+Built for the **UK AI Agent Hackathon EP.4 x OpenClaw** (March 2026, Imperial College London) by team **Not.Just.AI**.
+
+---
+
+## The Problem
+
+Generative AI can now create hyper-realistic images and videos of real people. There is no standardized infrastructure for:
+
+- **Consent** -- who gave permission for their face to be used?
+- **Compensation** -- how are creators paid when their likeness generates value?
+- **Compliance** -- is the usage legal under UK/EU data protection and IP law?
+- **Audit** -- who used what, when, and under what terms?
+
+## The Solution
+
+Face Library provides a multi-agent platform where:
+
+1. **Talent** registers their likeness preferences (allowed categories, pricing, geo restrictions)
+2. **Brands** submit license requests describing their intended use
+3. **AI Agents** autonomously process requests through a full pipeline:
+   - Compliance & risk assessment
+   - Dynamic price negotiation
+   - UK-law-compliant IP contract generation
+   - Immutable audit logging
+4. **Talent** reviews and approves/rejects with full transparency
+
+---
+
+## Architecture
+
+```
+                         +------------------+
+                         |   Next.js App    |
+                         |   (Frontend)     |
+                         +--------+---------+
+                                  |
+                                  | REST API
+                                  |
+                         +--------+---------+
+                         |   FastAPI        |
+                         |   (Backend)      |
+                         +--------+---------+
+                                  |
+                    +-------------+-------------+
+                    |             |              |
+              +-----+-----+ +---+----+ +-------+-------+
+              | Compliance | | Negoti | | Contract Gen  |
+              | Agent      | | ator   | | Agent         |
+              | (DeepSeek) | | (Qwen3)| | (GLM-4/FLock) |
+              +-----+------+ +---+----+ +-------+-------+
+                    |             |              |
+              +-----+-----+ +---+----+ +-------+-------+
+              | Search     | | Audit  | | Orchestrator  |
+              | Agent      | | Agent  | | (Pipeline)    |
+              | (DeepSeek) | | (Local)| | (Local)       |
+              +-----------+  +--------+ +---------------+
+                    |             |              |
+              +-----+-------------+--------------+------+
+              |           OpenClaw Gateway               |
+              |   FLock.io API  |  Z.AI GLM  |  Anyway  |
+              +----------------------------------------------+
+```
+
+### Multi-Agent Pipeline
+
+When a brand submits a license request, the orchestrator runs:
+
+1. **Compliance Agent** -- Assesses content risk, brand risk, legal risk, ethical risk, and geographic risk. Returns risk level and recommendation.
+2. **Negotiator Agent** -- Analyzes talent preferences and market rates. Proposes dynamic pricing with breakdown and confidence score.
+3. **Contract Agent** -- Generates a full UK-law-compliant IP license agreement (Copyright Act 1988, UK GDPR, Consumer Rights Act 2015). 12 sections covering parties, definitions, grant of rights, restrictions, compensation, IP ownership, data protection, warranties, termination, liability, dispute resolution, and general provisions.
+4. **Audit Agent** -- Logs every step with timestamps, agent identity, and action details.
+
+---
+
+## Bounty Tracks
+
+### 1. FLock.io -- Best Use of Open-Source AI Models ($5,000 USDT)
+
+Face Library uses FLock's open-source model inference API as the primary LLM provider:
+
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| Negotiator | Qwen3 235B | Dynamic pricing and licensing terms |
+| Compliance | DeepSeek V3.2 | Risk assessment and policy enforcement |
+| Contract | Qwen3 235B (fallback) | IP contract generation |
+| Search | DeepSeek V3.2 | AI-driven talent discovery |
+| Audit | Qwen3 30B | Log analysis |
+
+**SDG Alignment:**
+- **SDG 8 (Decent Work)** -- Creating fair economic opportunities for creators whose likenesses are used in AI
+- **SDG 10 (Reduced Inequalities)** -- Ensuring individual creators have the same IP protection as large corporations
+
+### 2. Z.AI -- Best Use of GLM Model ($4,000 USD)
+
+The Contract Generation Agent uses Z.AI's GLM-4 Plus as its primary model for generating legally compliant IP licensing agreements. GLM-4 Plus is particularly well-suited for structured legal document generation with its 128K context window.
+
+### 3. Claw for Human -- Most Impactful AI Agent ($500)
+
+Face Library is built entirely on the OpenClaw platform:
+- `openclaw.json` gateway configuration with FLock + Z.AI providers
+- 5 agent definitions with workspace paths and model assignments
+- Anyway tracing plugin for full observability
+- Demonstrates a real-world use case: protecting human identity rights in the age of generative AI
+
+### 4. AnyWay -- Best Use of Anyway SDK (Mac Mini)
+
+The Anyway OpenTelemetry tracing plugin is configured to capture:
+- Session-level spans for each license request pipeline
+- Agent-level spans for each AI agent invocation
+- LLM-level spans for each model call (input/output/tokens/latency)
+- Tool-level spans for database operations
+
+Traces export to `https://trace-dev-collector.anyway.sh` with full content capture enabled.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16, React, Tailwind CSS |
+| Backend | Python, FastAPI, SQLAlchemy, SQLite |
+| LLM Providers | FLock.io (Qwen3, DeepSeek, Kimi), Z.AI (GLM-4 Plus) |
+| Agent Platform | OpenClaw (gateway, agent orchestration) |
+| Observability | Anyway SDK (OpenTelemetry tracing) |
+| Auth | SHA-256 salted password hashing, localStorage sessions |
+
+---
+
+## Pages & Features
+
+| Page | Description |
+|------|-------------|
+| `/` | Landing page -- hero, trust bar, role cards, agent showcase, how it works pipeline |
+| `/signup` | Account creation with role selection (Talent / Brand / Agent) |
+| `/login` | Email + password authentication |
+| `/talent/dashboard` | Manage ad category permissions (allow/block), approval mode (auto/manual), geographic scope, view and action incoming license requests |
+| `/talent/register` | Detailed talent profile registration with bio, categories, pricing, permissions |
+| `/brand/dashboard` | Create license requests, select talent, run the AI orchestrator pipeline, view per-request agent logs |
+| `/brand/register` | Brand profile registration |
+| `/brand/search` | AI-powered talent discovery with natural language search |
+| `/license/[id]` | License detail -- compliance results, negotiation notes, generated contract, approve/reject, full audit trail |
+| `/agents` | System agent dashboard -- stats, agent grid with provider info, architecture diagram |
+| `/claw-console` | Real-time agent activity log viewer with search, agent filter, expandable input/output payloads |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.11+
+- Node.js 18+
+- npm
+
+### Backend
+
+```bash
+cd backend
+pip install -r requirements.txt
+
+# Create .env file
+cat > ../.env << 'EOF'
+FLOCK_API_KEY=your_flock_api_key
+FLOCK_API_BASE=https://api.flock.io/v1
+ZAI_API_KEY=your_zai_api_key
+ZAI_API_BASE=https://open.bigmodel.cn/api/paas/v4
+ANYWAY_API_KEY=your_anyway_api_key
+DATABASE_URL=sqlite:///./face_library.db
+EOF
+
+# Run
+uvicorn main:app --reload --port 8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:3000
+
+### API Documentation
+
+With the backend running, visit http://localhost:8000/docs for the interactive Swagger UI.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/signup` | Create account (talent/brand/agent) |
+| POST | `/api/auth/login` | Sign in |
+| GET | `/api/auth/me/{id}` | Get current user |
+| POST | `/api/talent/register` | Register talent with full profile |
+| GET | `/api/talent/{id}` | Get talent profile |
+| PUT | `/api/talent/{id}/preferences` | Update category/approval/geo preferences |
+| GET | `/api/talent/{id}/requests` | List incoming license requests |
+| GET | `/api/talents` | List all talents |
+| POST | `/api/brand/register` | Register brand |
+| GET | `/api/brand/{id}` | Get brand profile |
+| GET | `/api/brand/{id}/requests` | List brand's license requests |
+| POST | `/api/licensing/request` | Create license request |
+| POST | `/api/licensing/{id}/process` | Run multi-agent pipeline |
+| GET | `/api/licensing/{id}` | Get license details + contract |
+| POST | `/api/licensing/{id}/approve` | Approve or reject license |
+| GET | `/api/licenses` | List all licenses |
+| POST | `/api/talent/search` | AI-powered talent search |
+| GET | `/api/agents/status` | Agent system status + stats |
+| GET | `/api/audit/logs` | All agent audit logs (Claw Console) |
+| GET | `/api/audit/{id}` | Audit trail for specific license |
+| GET | `/api/health` | Health check |
+
+---
+
+## Team
+
+**Not.Just.AI**
+
+Built at the UK AI Agent Hackathon EP.4 x OpenClaw, Imperial College London, March 2026.
+
+---
+
+## License
+
+MIT
