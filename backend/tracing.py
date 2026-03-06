@@ -1,13 +1,13 @@
 """Anyway SDK -- OpenTelemetry tracing for Face Library agent pipeline.
 
-Captures session-level, agent-level, LLM-level, and tool-level spans
-for full observability of the multi-agent licensing pipeline.
+Uses the official Anyway SDK (anyway-sdk) for automatic LLM call instrumentation
+plus custom OpenTelemetry spans for session, agent, and tool-level observability.
 
-Exports traces to the Anyway collector for visualization and analysis.
+The SDK auto-instruments all OpenAI client calls (used by FLock, Z.AI, OpenRouter),
+capturing prompts, completions, token usage, latency, and model metadata.
 """
 import os
 import time
-import functools
 from contextlib import contextmanager
 from dotenv import load_dotenv
 
@@ -15,43 +15,30 @@ load_dotenv()
 
 _TRACING_ENABLED = False
 _tracer = None
+StatusCode = None
 
 try:
+    from anyway.sdk import Traceloop
     from opentelemetry import trace
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.sdk.resources import Resource
-    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-    from opentelemetry.trace import StatusCode
+    from opentelemetry.trace import StatusCode as _StatusCode
 
-    ANYWAY_ENDPOINT = os.getenv(
-        "ANYWAY_TRACE_ENDPOINT",
-        "https://trace-dev-collector.anyway.sh/v1/traces",
-    )
     ANYWAY_API_KEY = os.getenv("ANYWAY_API_KEY", "")
 
     if ANYWAY_API_KEY:
-        resource = Resource.create({
-            "service.name": "face-library",
-            "service.version": "1.0.0",
-            "deployment.environment": os.getenv("ENVIRONMENT", "development"),
-        })
-
-        provider = TracerProvider(resource=resource)
-        exporter = OTLPSpanExporter(
-            endpoint=ANYWAY_ENDPOINT,
+        Traceloop.init(
+            app_name="face-library",
+            api_endpoint="collector.anyway.sh:4317",
             headers={"Authorization": f"Bearer {ANYWAY_API_KEY}"},
         )
-        provider.add_span_processor(BatchSpanProcessor(exporter))
-        trace.set_tracer_provider(provider)
-        _tracer = trace.get_tracer("face-library", "1.0.0")
+        _tracer = trace.get_tracer("face-library", "2.0.0")
         _TRACING_ENABLED = True
-        print("[Tracing] Anyway SDK enabled -- exporting to", ANYWAY_ENDPOINT)
+        StatusCode = _StatusCode
+        print("[Tracing] Anyway SDK initialized -- auto-instrumenting OpenAI calls")
     else:
         print("[Tracing] ANYWAY_API_KEY not set -- tracing disabled (spans will be no-ops)")
 
-except ImportError:
-    print("[Tracing] OpenTelemetry not installed -- tracing disabled")
+except ImportError as e:
+    print(f"[Tracing] Anyway SDK not installed ({e}) -- tracing disabled")
 
 
 class _NoOpSpan:
@@ -112,7 +99,12 @@ def trace_agent(agent_name: str, action: str, metadata: dict = None):
 
 @contextmanager
 def trace_llm_call(model: str, provider: str, agent_name: str = ""):
-    """Span for a single LLM API call with token/latency tracking."""
+    """Span for a single LLM API call with token/latency tracking.
+
+    Note: The Anyway SDK auto-instruments OpenAI client calls, capturing
+    prompts, completions, and tokens automatically. This span provides
+    additional context (agent name, provider tier) for correlation.
+    """
     if not _TRACING_ENABLED:
         yield _NoOpSpan()
         return
