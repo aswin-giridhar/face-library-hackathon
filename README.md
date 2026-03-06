@@ -6,6 +6,15 @@ Face Library is a permission and monetization layer for human identity in genera
 
 Built for the **UK AI Agent Hackathon EP.4 x OpenClaw** (March 2026, Imperial College London) by team **Not.Just.AI**.
 
+### Live Demo
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://face-library.vercel.app |
+| **Backend API** | https://face-library.onrender.com |
+| **API Docs (Swagger)** | https://face-library.onrender.com/docs |
+| **GitHub** | https://github.com/aswin-giridhar/face-library |
+
 ---
 
 ## The Problem
@@ -243,18 +252,9 @@ Face Library is a coordinated multi-agent system where 9 specialized AI agents c
 cd backend
 pip install -r requirements.txt
 
-# Create .env file
-cat > ../.env << 'EOF'
-FLOCK_API_KEY=your_flock_api_key
-FLOCK_BASE_URL=https://api.flock.io/v1
-ZAI_API_KEY=your_zai_api_key
-ZAI_BASE_URL=https://open.bigmodel.cn/api/paas/v4
-ANYWAY_API_KEY=your_anyway_api_key
-DATABASE_URL=sqlite:///./face_library.db
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-EOF
+# Create .env file in the project root
+cp .env.example .env
+# Edit .env with your API keys (see Environment Variables below)
 
 # Run
 uvicorn main:app --reload --port 8000
@@ -265,14 +265,54 @@ uvicorn main:app --reload --port 8000
 ```bash
 cd frontend
 npm install
+
+# For local development (backend at localhost:8000):
 npm run dev
+
+# For production (set backend URL):
+NEXT_PUBLIC_API_URL=https://face-library.onrender.com npm run build
 ```
 
 Open http://localhost:3000
 
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `FLOCK_API_KEY` | FLock.io API key for AI models | Yes |
+| `FLOCK_BASE_URL` | FLock API endpoint (`https://api.flock.io/v1`) | Yes |
+| `FLOCK_MODEL_PRIMARY` | Primary model (`qwen3-30b-a3b-instruct-2507`) | Yes |
+| `FLOCK_MODEL_REASONING` | Reasoning model (`qwen3-235b-a22b-thinking-2507`) | Yes |
+| `FLOCK_MODEL_FAST` | Fast model (`deepseek-v3.2`) | Yes |
+| `ZAI_API_KEY` | Z.AI API key for GLM-4 Plus | Yes |
+| `ZAI_BASE_URL` | Z.AI endpoint (`https://open.bigmodel.cn/api/paas/v4`) | Yes |
+| `DATABASE_URL` | Database URL (SQLite or PostgreSQL) | Yes |
+| `SUPABASE_URL` | Supabase project URL | Yes |
+| `SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | Yes |
+| `SECRET_KEY` | App secret for session signing | Yes |
+| `ANYWAY_API_KEY` | Anyway SDK key for tracing | Optional |
+| `ANYWAY_ENDPOINT` | Anyway collector URL | Optional |
+| `NEXT_PUBLIC_API_URL` | Backend URL for frontend (Vercel env) | Production |
+
+### Deployment
+
+**Frontend (Vercel):**
+1. Import `aswin-giridhar/face-library` on Vercel
+2. Set Root Directory to `frontend`
+3. Add env var: `NEXT_PUBLIC_API_URL=https://face-library.onrender.com`
+
+**Backend (Render):**
+1. Create Web Service from `aswin-giridhar/face-library`
+2. Set Root Directory to `backend`
+3. Build Command: `pip install -r requirements.txt`
+4. Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. Add all environment variables listed above
+
 ### API Documentation
 
-With the backend running, visit http://localhost:8000/docs for the interactive Swagger UI.
+- **Local**: http://localhost:8000/docs (Swagger UI)
+- **Production**: https://face-library.onrender.com/docs
 
 ---
 
