@@ -33,6 +33,7 @@ from models import (
 )
 from agents.orchestrator import OrchestratorAgent
 from llm_client import get_model_info
+from supabase_client import supabase, supabase_admin
 
 orchestrator = OrchestratorAgent()
 
@@ -178,16 +179,78 @@ def _user_response(user: User, profile_id: int | None) -> dict:
     }
 
 
-# -- Auth Endpoints ------------------------------------------------------------
+def _sync_supabase_user(supabase_uid: str, email: str, name: str, role: str,
+                         company_name: str | None, db: Session) -> User:
+    """Find or create a local User record linked to a Supabase Auth user."""
+    user = db.query(User).filter(User.supabase_uid == supabase_uid).first()
+    if user:
+        return user
+    # Also check by email (migrating from legacy auth)
+    user = db.query(User).filter(User.email == email).first()
+    if user:
+        user.supabase_uid = supabase_uid
+        db.commit()
+        return user
+    # Create new local user
+    user = User(email=email, name=name, role=role, supabase_uid=supabase_uid)
+    db.add(user)
+    db.flush()
+    # Auto-create profile
+    if role == "talent":
+        profile = TalentProfile(user_id=user.id)
+        db.add(profile)
+    elif role == "brand":
+        profile = BrandProfile(user_id=user.id, company_name=company_name or name)
+        db.add(profile)
+    db.commit()
+    return user
+
+
+# -- Auth Endpoints (Supabase with local fallback) ----------------------------
 
 
 @app.post("/api/auth/signup")
 def signup(req: SignupRequest, db: Session = Depends(get_db)):
+    if req.role not in ("talent", "brand", "agent"):
+        raise HTTPException(400, "Role must be talent, brand, or agent")
+
+    # Try Supabase auth first
+    if supabase:
+        try:
+            auth_res = supabase.auth.sign_up({
+                "email": req.email,
+                "password": req.password,
+                "options": {
+                    "data": {
+                        "name": req.name,
+                        "role": req.role,
+                        "company_name": req.company_name,
+                    }
+                },
+            })
+            if auth_res.user:
+                user = _sync_supabase_user(
+                    auth_res.user.id, req.email, req.name, req.role, req.company_name, db
+                )
+                return {
+                    **_user_response(user, _get_profile_id(user, db)),
+                    "access_token": auth_res.session.access_token if auth_res.session else None,
+                    "auth_provider": "supabase",
+                }
+            else:
+                raise HTTPException(400, "Signup failed -- check email for confirmation link")
+        except HTTPException:
+            raise
+        except Exception as e:
+            # If Supabase fails, fall through to local auth
+            error_msg = str(e)
+            if "already registered" in error_msg.lower() or "already been registered" in error_msg.lower():
+                raise HTTPException(400, "Email already registered")
+
+    # Fallback: local auth
     existing = db.query(User).filter(User.email == req.email).first()
     if existing:
         raise HTTPException(400, "Email already registered")
-    if req.role not in ("talent", "brand", "agent"):
-        raise HTTPException(400, "Role must be talent, brand, or agent")
 
     user = User(
         email=req.email,
@@ -214,11 +277,34 @@ def signup(req: SignupRequest, db: Session = Depends(get_db)):
         profile_id = profile.id
 
     db.commit()
-    return _user_response(user, profile_id)
+    return {**_user_response(user, profile_id), "access_token": None, "auth_provider": "local"}
 
 
 @app.post("/api/auth/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
+    # Try Supabase auth first
+    if supabase:
+        try:
+            auth_res = supabase.auth.sign_in_with_password({
+                "email": req.email,
+                "password": req.password,
+            })
+            if auth_res.user and auth_res.session:
+                meta = auth_res.user.user_metadata or {}
+                name = meta.get("name", req.email.split("@")[0])
+                role = meta.get("role", "talent")
+                company = meta.get("company_name")
+
+                user = _sync_supabase_user(auth_res.user.id, req.email, name, role, company, db)
+                return {
+                    **_user_response(user, _get_profile_id(user, db)),
+                    "access_token": auth_res.session.access_token,
+                    "auth_provider": "supabase",
+                }
+        except Exception:
+            pass  # Fall through to local auth
+
+    # Fallback: local auth
     user = db.query(User).filter(User.email == req.email).first()
     if not user:
         raise HTTPException(401, "Invalid email or password")
@@ -226,7 +312,11 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(401, "Account has no password -- please re-register")
     if not _verify_password(req.password, user.password_hash):
         raise HTTPException(401, "Invalid email or password")
-    return _user_response(user, _get_profile_id(user, db))
+    return {
+        **_user_response(user, _get_profile_id(user, db)),
+        "access_token": None,
+        "auth_provider": "local",
+    }
 
 
 @app.get("/api/auth/me/{user_id}")

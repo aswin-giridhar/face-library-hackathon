@@ -6,7 +6,13 @@ import enum
 import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./face_library.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+# Support both SQLite and PostgreSQL (Supabase)
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -43,7 +49,8 @@ class User(Base):
     name = Column(String, nullable=False)
     role = Column(String, nullable=False)
     company = Column(String, nullable=True)
-    password_hash = Column(String, nullable=True)
+    password_hash = Column(String, nullable=True)  # Legacy -- kept for backwards compat
+    supabase_uid = Column(String, unique=True, nullable=True, index=True)  # Supabase Auth user ID
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
