@@ -27,7 +27,7 @@ try:
     if ANYWAY_API_KEY:
         Traceloop.init(
             app_name="face-library",
-            api_endpoint="collector.anyway.sh:4317",
+            api_endpoint="https://trace-dev-collector.anyway.sh/",
             headers={"Authorization": f"Bearer {ANYWAY_API_KEY}"},
         )
         _tracer = trace.get_tracer("face-library", "2.0.0")
