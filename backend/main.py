@@ -1415,11 +1415,11 @@ def telegram_webhook(update: TelegramUpdate, db: Session = Depends(get_db)):
         try:
             httpx.post(
                 f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
-                json={"chat_id": chat_id, "text": reply, "parse_mode": "Markdown"},
+                json={"chat_id": chat_id, "text": reply},
                 timeout=10,
             )
-        except Exception:
-            pass  # Non-blocking: don't fail the webhook if Telegram send fails
+        except Exception as e:
+            print(f"[Telegram] Failed to send message: {e}")
 
     return {"ok": True, "reply": reply}
 

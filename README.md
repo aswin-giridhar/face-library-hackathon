@@ -139,8 +139,6 @@ Face Library uses **all 5 FLock open-source models** as the primary LLM provider
 | Likeness Fingerprint | DeepSeek V3.2 | Fast | Unauthorized use detection |
 | Talent Discovery | DeepSeek V3.2 | Fast | AI-driven talent search |
 | Onboarding Chat | DeepSeek V3.2 | Fast | Conversational profile setup |
-| (Available) | Qwen3 30B | Primary | General analysis |
-| (Available) | Kimi K2.5 | Long Context | 128K context for extended analysis |
 
 **OpenClaw Integration:**
 - Full `openclaw.json` gateway config with all 9 agents, pipeline definition, model assignments, and SDG tags
@@ -225,7 +223,7 @@ Face Library is a coordinated multi-agent system where 9 specialized AI agents c
 |-------|-----------|
 | Frontend | Next.js 16, React, TypeScript, Tailwind CSS |
 | Backend | Python, FastAPI, SQLAlchemy, SQLite |
-| LLM Providers | FLock.io (Qwen3 30B/235B, DeepSeek V3.2, Kimi K2.5), Z.AI (GLM-4 Plus direct + OpenRouter) |
+| LLM Providers | FLock.io (Qwen3 235B, DeepSeek V3.2), Z.AI (GLM-4 Plus direct + OpenRouter) |
 | Agent Platform | OpenClaw (gateway config, 9 agent definitions, 3 providers, pipeline definition) |
 | Observability | Anyway SDK (`anyway-sdk` -- auto-instruments OpenAI calls + custom spans) |
 | Auth | Supabase Auth (primary) + SHA-256 salted password hashing (fallback) |
