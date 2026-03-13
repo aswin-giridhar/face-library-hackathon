@@ -130,7 +130,7 @@ export default function TalentLibraryPage() {
           {filteredTalents.map((t) => (
             <Link
               key={t.id}
-              href={`/brand/search?talent=${t.id}`}
+              href={`/talent/library`}
               className="group cursor-pointer"
             >
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-slate-200 to-gray-300 mb-3">

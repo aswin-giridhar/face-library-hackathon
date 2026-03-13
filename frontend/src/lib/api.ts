@@ -1,11 +1,8 @@
 /**
- * Face Library API Client — All backend calls to FastAPI.
+ * Face Library MVP API Client.
  *
- * Sections: Auth, Talent, Brand, Agent, Talent-Agent Linking,
- * Licensing (7-agent pipeline), Search, Pricing, SDG Impact,
- * Agent Orchestration Status, Audit Logs, Onboarding Chat.
- *
- * Backend: FastAPI at localhost:8000 (configurable via NEXT_PUBLIC_API_URL).
+ * Sections: Auth, Talent, Client, Agent, Talent-Agent Linking,
+ * Licensing, Contract Agent, Watermark Tracking, Audit, Payments.
  */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -22,7 +19,7 @@ async function fetchAPI(path: string, options?: RequestInit) {
 }
 
 // Auth
-export const signup = (data: { email: string; password: string; name: string; role: string; company_name?: string }) =>
+export const signup = (data: { email: string; password: string; name: string; role: string; company?: string }) =>
   fetchAPI("/api/auth/signup", { method: "POST", body: JSON.stringify(data) });
 
 export const login = (data: { email: string; password: string }) =>
@@ -43,13 +40,29 @@ export const updateTalentPreferences = (id: number, data: Record<string, unknown
 
 export const getTalentRequests = (id: number) => fetchAPI(`/api/talent/${id}/requests`);
 
-// Brand
-export const registerBrand = (data: Record<string, unknown>) =>
-  fetchAPI("/api/brand/register", { method: "POST", body: JSON.stringify(data) });
+export const uploadTalentImage = async (talentId: number, file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${API_BASE}/api/talent/${talentId}/upload-image`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) throw new Error("Upload failed");
+  return res.json();
+};
 
-export const getBrand = (id: number) => fetchAPI(`/api/brand/${id}`);
+// Client (renamed from Brand)
+export const registerClient = (data: Record<string, unknown>) =>
+  fetchAPI("/api/client/register", { method: "POST", body: JSON.stringify(data) });
 
-export const getBrandRequests = (id: number) => fetchAPI(`/api/brand/${id}/requests`);
+export const getClient = (id: number) => fetchAPI(`/api/client/${id}`);
+
+export const getClientRequests = (id: number) => fetchAPI(`/api/client/${id}/requests`);
+
+// Backward compat
+export const registerBrand = registerClient;
+export const getBrand = getClient;
+export const getBrandRequests = getClientRequests;
 
 // Agent
 export const registerAgent = (data: Record<string, unknown>) =>
@@ -72,75 +85,63 @@ export const getAgentLinks = (agentId: number) => fetchAPI(`/api/talent-agent/li
 export const createLicenseRequest = (data: Record<string, unknown>) =>
   fetchAPI("/api/licensing/request", { method: "POST", body: JSON.stringify(data) });
 
-export const processLicense = (id: number) =>
-  fetchAPI(`/api/licensing/${id}/process`, { method: "POST" });
-
 export const getLicense = (id: number) => fetchAPI(`/api/licensing/${id}`);
 
-export const approveLicense = (id: number, approved: boolean, notes?: string) =>
+export const approveLicense = (id: number, approved: boolean) =>
   fetchAPI(`/api/licensing/${id}/approve`, {
     method: "POST",
-    body: JSON.stringify({ approved, notes }),
+    body: JSON.stringify({ approved }),
   });
 
 export const listLicenses = () => fetchAPI("/api/licenses");
 
-// Search
-export const searchTalent = (query: string, filters?: Record<string, unknown>) =>
-  fetchAPI("/api/talent/search", {
+// Contract Agent
+export const generateContract = (licenseId: number) =>
+  fetchAPI(`/api/licensing/${licenseId}/generate-contract`, { method: "POST" });
+
+export const validateContract = (licenseId: number) =>
+  fetchAPI(`/api/licensing/${licenseId}/validate-contract`, { method: "POST" });
+
+export const improveContract = (licenseId: number, feedback: string) =>
+  fetchAPI(`/api/licensing/${licenseId}/improve-contract`, {
     method: "POST",
-    body: JSON.stringify({ query, ...filters }),
+    body: JSON.stringify({ feedback }),
   });
 
-// Agents
-export const getAgentsStatus = () => fetchAPI("/api/agents/status");
+// Manual Review
+export const reviewLicense = (licenseId: number, data: { status: string; admin_notes?: string; reviewed_by?: string }) =>
+  fetchAPI(`/api/licensing/${licenseId}/review`, { method: "POST", body: JSON.stringify(data) });
 
-export const getAuditTrail = (licenseId: number) =>
-  fetchAPI(`/api/audit/${licenseId}`);
+// Watermark Tracking
+export const reportWatermark = (data: Record<string, unknown>) =>
+  fetchAPI("/api/watermark/report", { method: "POST", body: JSON.stringify(data) });
+
+export const getWatermarkByLicense = (licenseId: number) =>
+  fetchAPI(`/api/watermark/license/${licenseId}`);
+
+export const getWatermarkByTalent = (talentId: number) =>
+  fetchAPI(`/api/watermark/talent/${talentId}`);
+
+// Audit
+export const getAuditTrail = (licenseId: number) => fetchAPI(`/api/audit/${licenseId}`);
 
 export const getAllAuditLogs = () => fetchAPI("/api/audit/logs");
 
-// Pricing
-export const getPricingEstimate = (data: {
-  content_type?: string;
-  duration_days?: number;
-  regions?: string;
-  exclusivity?: boolean;
-  talent_min_price?: number;
-}) => fetchAPI("/api/pricing/estimate", { method: "POST", body: JSON.stringify(data) });
-
-// SDG Impact
-export const getSDGImpact = () => fetchAPI("/api/sdg/impact");
-
-// Agent Decisions
-export const getAgentDecisions = () => fetchAPI("/api/agents/decisions");
-
-// Onboarding Chat
-export const onboardingChat = (data: {
-  messages: { role: string; content: string }[];
-  user_type: string;
-  context?: Record<string, string>;
-}) => fetchAPI("/api/chat/onboarding", { method: "POST", body: JSON.stringify(data) });
-
-// Photo Analysis
-export const analyzePhoto = (data: { description?: string }) =>
-  fetchAPI("/api/talent/analyze-photo", { method: "POST", body: JSON.stringify(data) });
-
-// Payments (Stripe Connect — Anyway bounty commercialization)
+// Payments (Stripe)
 export const createCheckoutSession = (licenseId: number) =>
   fetchAPI("/api/payments/checkout", {
     method: "POST",
     body: JSON.stringify({
       license_id: licenseId,
-      success_url: `${window.location.origin}/brand/dashboard`,
-      cancel_url: `${window.location.origin}/brand/dashboard`,
+      success_url: `${typeof window !== "undefined" ? window.location.origin : ""}/license/${licenseId}?paid=true`,
+      cancel_url: `${typeof window !== "undefined" ? window.location.origin : ""}/license/${licenseId}`,
     }),
   });
 
 export const getRevenue = () => fetchAPI("/api/payments/revenue");
 
-// OpenClaw Config
-export const getOpenClawConfig = () => fetchAPI("/api/openclaw/config");
+// License Templates
+export const getLicenseTemplates = () => fetchAPI("/api/license-templates");
 
 // Health
 export const getHealth = () => fetchAPI("/api/health");

@@ -1,22 +1,11 @@
-/**
- * Agent Dashboard — Central hub for talent agencies managing their roster.
- *
- * Features:
- * - Stat cards: Managed Talents, Pending Approvals, Total Requests
- * - Managed talents list with geo scope and approval type badges
- * - Expandable approval queue with approve/reject actions
- * - Contract template section (Standard, Exclusive, Time-Limited)
- *
- * Accessible at: /agent/dashboard (requires agent role)
- */
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Users, Clock, FileText, Shield, MapPin,
   CheckCircle, XCircle, ChevronDown, ChevronUp,
+  Image as ImageIcon,
 } from "lucide-react";
 import DashboardNav from "@/components/DashboardNav";
 import { useAuth } from "@/lib/auth";
@@ -28,6 +17,7 @@ interface ManagedTalent {
   geo_scope: string;
   approval_type: string;
   categories: string | null;
+  image_url: string | null;
 }
 
 interface AgentProfileData {
@@ -56,9 +46,21 @@ interface RequestData {
 }
 
 const CONTRACT_TEMPLATES = [
-  { name: "Standard Licensing", desc: "Basic likeness usage with time limits", status: "Available" },
-  { name: "Exclusive Rights", desc: "Single-brand exclusivity for a period", status: "Coming soon" },
-  { name: "Time-Limited", desc: "Short-term campaign usage only", status: "Coming soon" },
+  {
+    name: "Standard",
+    desc: "Basic likeness licensing with defined usage rights, duration, and territory. Suitable for most campaigns.",
+    tag: "Coming Soon",
+  },
+  {
+    name: "Exclusive",
+    desc: "Single-brand exclusivity within a category for a set period. Includes competitor restriction clauses.",
+    tag: "Coming Soon",
+  },
+  {
+    name: "Time-Limited",
+    desc: "Short-term campaign usage with automatic expiration. Ideal for seasonal or event-based content.",
+    tag: "Coming Soon",
+  },
 ];
 
 export default function AgentDashboardPage() {
@@ -112,7 +114,9 @@ export default function AgentDashboardPage() {
   }
 
   const managedTalents = profile?.managed_talents || [];
-  const pendingRequests = requests.filter((r) => r.status === "awaiting_approval" || r.status === "pending");
+  const pendingRequests = requests.filter(
+    (r) => r.status === "awaiting_approval" || r.status === "pending"
+  );
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -131,146 +135,176 @@ export default function AgentDashboardPage() {
           <div className="bg-white border border-[#E0E0DA] rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
               <Users className="w-5 h-5 text-[#1E3A5F]" />
-              <span className="font-body text-xs uppercase tracking-wider text-[#6B6B73]">Managed Talents</span>
+              <span className="font-body text-xs uppercase tracking-wider text-[#6B6B73]">
+                Managed Talents
+              </span>
             </div>
             <p className="font-display text-3xl text-[#0B0B0F]">{managedTalents.length}</p>
           </div>
           <div className="bg-white border border-[#E0E0DA] rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
               <Clock className="w-5 h-5 text-amber-600" />
-              <span className="font-body text-xs uppercase tracking-wider text-[#6B6B73]">Pending Approvals</span>
+              <span className="font-body text-xs uppercase tracking-wider text-[#6B6B73]">
+                Pending Approvals
+              </span>
             </div>
             <p className="font-display text-3xl text-[#0B0B0F]">{pendingRequests.length}</p>
           </div>
           <div className="bg-white border border-[#E0E0DA] rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
               <FileText className="w-5 h-5 text-emerald-600" />
-              <span className="font-body text-xs uppercase tracking-wider text-[#6B6B73]">Total Requests</span>
+              <span className="font-body text-xs uppercase tracking-wider text-[#6B6B73]">
+                Total Requests
+              </span>
             </div>
             <p className="font-display text-3xl text-[#0B0B0F]">{requests.length}</p>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Managed Talents */}
-          <div className="bg-white border border-[#E0E0DA] rounded-lg p-6">
-            <h3 className="font-body text-sm font-semibold text-[#0B0B0F] flex items-center gap-2 mb-4">
-              <Users className="h-4 w-4" /> Managed Talents
-            </h3>
-            {managedTalents.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="font-body text-sm text-[#6B6B73] mb-3">No talents linked yet.</p>
-                <p className="font-body text-xs text-[#9B9BA3]">
-                  Talents can link to your agency during onboarding, or you can send them an invite.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {managedTalents.map((t) => (
-                  <div key={t.id} className="flex items-center justify-between rounded-lg border border-[#E0E0DA] p-4">
-                    <div>
-                      <p className="font-body text-sm font-medium text-[#0B0B0F]">{t.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <MapPin className="h-3 w-3 text-[#6B6B73]" />
-                        <span className="font-body text-xs text-[#6B6B73] capitalize">{t.geo_scope}</span>
-                        <span className="font-body text-[10px] px-2 py-0.5 rounded-full bg-[#F5F5F0] text-[#6B6B73]">
-                          {t.approval_type.replace("_", " ")}
-                        </span>
-                      </div>
-                    </div>
-                    <Link
-                      href={`/talent/library`}
-                      className="font-body text-xs text-[#1E3A5F] hover:underline"
-                    >
-                      View
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Approval Queue */}
-          <div className="bg-white border border-[#E0E0DA] rounded-lg p-6">
-            <h3 className="font-body text-sm font-semibold text-[#0B0B0F] flex items-center gap-2 mb-4">
-              <Shield className="h-4 w-4" /> Approval Queue
-            </h3>
-            {requests.length === 0 ? (
-              <p className="font-body text-sm text-[#6B6B73] py-4">No requests yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {requests.map((r) => (
-                  <div key={r.id} className="rounded-lg border border-[#E0E0DA] overflow-hidden">
-                    <div
-                      className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#F5F5F0]/50 transition-colors"
-                      onClick={() => setExpandedRequest(expandedRequest === r.id ? null : r.id)}
-                    >
-                      <div>
-                        <p className="font-body text-sm font-medium text-[#0B0B0F]">
-                          {r.talent_name} &larr; {r.brand_name}
-                        </p>
-                        <p className="font-body text-xs text-[#6B6B73]">
-                          {r.content_type} &middot; {r.desired_duration_days} days
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`font-body text-xs px-3 py-1 rounded-full capitalize ${
-                          r.status === "active" || r.status === "approved" ? "bg-green-50 text-green-700" :
-                          r.status === "rejected" ? "bg-red-50 text-red-700" :
-                          "bg-[#F5F5F0] text-[#6B6B73]"
-                        }`}>
-                          {r.status}
-                        </span>
-                        {expandedRequest === r.id ? <ChevronUp className="h-4 w-4 text-[#6B6B73]" /> : <ChevronDown className="h-4 w-4 text-[#6B6B73]" />}
-                      </div>
-                    </div>
-                    {expandedRequest === r.id && (
-                      <div className="px-4 pb-4 border-t border-[#E0E0DA] pt-3">
-                        <p className="font-body text-xs text-[#6B6B73] mb-2">Use case: {r.use_case}</p>
-                        {r.proposed_price != null && (
-                          <p className="font-body text-xs text-[#6B6B73] mb-2">
-                            Suggested price: £{r.proposed_price.toLocaleString()} GBP
-                          </p>
-                        )}
-                        {(r.status === "awaiting_approval" || r.status === "pending") && (
-                          <div className="flex gap-2 mt-3">
-                            <button
-                              onClick={() => handleRequestAction(r.id, true)}
-                              className="flex items-center gap-1 font-body text-xs border border-[#E0E0DA] px-3 py-1.5 rounded-md hover:bg-green-50 transition-colors"
-                            >
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600" /> Approve
-                            </button>
-                            <button
-                              onClick={() => handleRequestAction(r.id, false)}
-                              className="flex items-center gap-1 font-body text-xs text-[#6B6B73] hover:text-red-600 transition-colors"
-                            >
-                              <XCircle className="h-3.5 w-3.5" /> Reject
-                            </button>
-                          </div>
-                        )}
-                      </div>
+        {/* Managed Talents */}
+        <div className="bg-white border border-[#E0E0DA] rounded-lg p-6 mb-6">
+          <h3 className="font-body text-sm font-semibold text-[#0B0B0F] flex items-center gap-2 mb-4">
+            <Users className="h-4 w-4" /> Managed Talents
+          </h3>
+          {managedTalents.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="font-body text-sm text-[#6B6B73] mb-3">No talents linked yet.</p>
+              <p className="font-body text-xs text-[#9B9BA3]">
+                Talents can link to your agency during onboarding, or you can send them an invite.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {managedTalents.map((t) => (
+                <div
+                  key={t.id}
+                  className="flex items-center gap-4 rounded-lg border border-[#E0E0DA] p-4"
+                >
+                  {/* Talent image */}
+                  <div className="w-12 h-12 rounded-full bg-[#F5F5F0] border border-[#E0E0DA] flex items-center justify-center overflow-hidden shrink-0">
+                    {t.image_url ? (
+                      <img
+                        src={t.image_url}
+                        alt={t.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-[#B0B0B8]" />
                     )}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm font-medium text-[#0B0B0F]">{t.name}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      {t.categories && (
+                        <span className="font-body text-[10px] px-2 py-0.5 rounded-full bg-[#4F6AF6]/10 text-[#4F6AF6]">
+                          {t.categories}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3 text-[#6B6B73]" />
+                        <span className="font-body text-xs text-[#6B6B73] capitalize">
+                          {t.geo_scope}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Pending Approvals */}
+        <div className="bg-white border border-[#E0E0DA] rounded-lg p-6 mb-6">
+          <h3 className="font-body text-sm font-semibold text-[#0B0B0F] flex items-center gap-2 mb-4">
+            <Shield className="h-4 w-4" /> Pending Approvals
+          </h3>
+          {pendingRequests.length === 0 ? (
+            <p className="font-body text-sm text-[#6B6B73] py-4">No pending approvals.</p>
+          ) : (
+            <div className="space-y-3">
+              {pendingRequests.map((r) => (
+                <div
+                  key={r.id}
+                  className="rounded-lg border border-[#E0E0DA] overflow-hidden"
+                >
+                  <div
+                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#F5F5F0]/50 transition-colors"
+                    onClick={() =>
+                      setExpandedRequest(expandedRequest === r.id ? null : r.id)
+                    }
+                  >
+                    <div>
+                      <p className="font-body text-sm font-medium text-[#0B0B0F]">
+                        {r.talent_name} &larr; {r.brand_name}
+                      </p>
+                      <p className="font-body text-xs text-[#6B6B73]">
+                        {r.content_type} &middot; {r.desired_duration_days} days
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-body text-xs px-3 py-1 rounded-full bg-amber-50 text-amber-700 capitalize">
+                        {r.status.replace("_", " ")}
+                      </span>
+                      {expandedRequest === r.id ? (
+                        <ChevronUp className="h-4 w-4 text-[#6B6B73]" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-[#6B6B73]" />
+                      )}
+                    </div>
+                  </div>
+                  {expandedRequest === r.id && (
+                    <div className="px-4 pb-4 border-t border-[#E0E0DA] pt-3">
+                      <p className="font-body text-xs text-[#6B6B73] mb-2">
+                        Use case: {r.use_case}
+                      </p>
+                      {r.proposed_price != null && (
+                        <p className="font-body text-xs text-[#6B6B73] mb-2">
+                          Suggested price: &pound;{r.proposed_price.toLocaleString()} GBP
+                        </p>
+                      )}
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => handleRequestAction(r.id, true)}
+                          className="flex items-center gap-1 font-body text-xs border border-[#E0E0DA] px-3 py-1.5 rounded-md hover:bg-green-50 transition-colors"
+                        >
+                          <CheckCircle className="h-3.5 w-3.5 text-green-600" /> Approve
+                        </button>
+                        <button
+                          onClick={() => handleRequestAction(r.id, false)}
+                          className="flex items-center gap-1 font-body text-xs text-[#6B6B73] hover:text-red-600 transition-colors"
+                        >
+                          <XCircle className="h-3.5 w-3.5" /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Contract Templates */}
-        <div className="bg-white border border-[#E0E0DA] rounded-lg p-6 mt-6">
+        <div className="bg-white border border-[#E0E0DA] rounded-lg p-6">
           <h3 className="font-body text-sm font-semibold text-[#0B0B0F] flex items-center gap-2 mb-4">
             <FileText className="h-4 w-4" /> Contract Templates
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {CONTRACT_TEMPLATES.map((t) => (
-              <div key={t.name} className="rounded-lg border border-[#E0E0DA] p-4">
-                <h4 className="font-body text-sm font-medium text-[#0B0B0F] mb-1">{t.name}</h4>
-                <p className="font-body text-xs text-[#6B6B73] mb-3">{t.desc}</p>
-                <span className={`font-body text-[10px] px-2 py-0.5 rounded-full ${
-                  t.status === "Available" ? "bg-emerald-50 text-emerald-700" : "bg-[#F5F5F0] text-[#6B6B73]"
-                }`}>
-                  {t.status}
+              <div
+                key={t.name}
+                className="rounded-lg border border-[#E0E0DA] p-5"
+              >
+                <h4 className="font-body text-sm font-medium text-[#0B0B0F] mb-2">
+                  {t.name}
+                </h4>
+                <p className="font-body text-xs text-[#6B6B73] mb-4 leading-relaxed">
+                  {t.desc}
+                </p>
+                <span className="font-body text-[10px] px-2 py-0.5 rounded-full bg-[#F5F5F0] text-[#6B6B73]">
+                  {t.tag}
                 </span>
               </div>
             ))}

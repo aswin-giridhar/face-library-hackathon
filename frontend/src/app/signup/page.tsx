@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth";
 
 const ROLES = [
   { value: "talent", label: "Talent", sublabel: "License your likeness", icon: User },
-  { value: "brand", label: "Brand", sublabel: "Use licensed likenesses", icon: Building2 },
+  { value: "client", label: "Client", sublabel: "License digital talent", icon: Building2 },
   { value: "agent", label: "Agent", sublabel: "Manage talent rosters", icon: Shield },
 ] as const;
 
@@ -34,14 +34,12 @@ export default function SignupPage() {
         password,
         name,
         role,
-        // Pass company_name for both brand (company) and agent (agency name)
-        company_name: (role === "brand" || role === "agent") ? companyName : undefined,
+        company: (role === "client" || role === "agent") ? companyName : undefined,
       });
       setUser(res);
-      // Route each role to their onboarding flow after signup
-      if (res.role === "talent") router.push("/onboarding/chat");
-      else if (res.role === "brand") router.push("/brand/onboarding");
-      else if (res.role === "agent") router.push("/agent/onboarding");
+      if (res.role === "talent") router.push("/talent/register");
+      else if (res.role === "client") router.push("/client/register");
+      else if (res.role === "agent") router.push("/agent/register");
       else router.push("/");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Signup failed");
@@ -131,7 +129,7 @@ export default function SignupPage() {
           </div>
 
           {/* Show company/agency name field for brand and agent roles */}
-          {(role === "brand" || role === "agent") && (
+          {(role === "client" || role === "agent") && (
             <div>
               <label className="block font-body text-sm font-medium text-[#0B0B0F] mb-1">
                 {role === "agent" ? "Agency Name" : "Company Name"}

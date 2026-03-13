@@ -1,9 +1,6 @@
 /**
- * Landing Page — Face Library platform homepage.
- *
- * Sections: Hero, Features (IP Protection, Smart Contracts, Real-time Monitoring),
- * "How It Works" (3-step flow for talent), CTA for Talent/Brand/Agent registration.
- * Links to: /talent/register, /brand/search, /agent/register, /agents, /login.
+ * Landing Page — Face Library MVP.
+ * Matches wireframe: "Protect and License Faces in the Age of AI"
  */
 "use client";
 
@@ -16,11 +13,6 @@ import {
   Eye,
   Scale,
   Search,
-  AlertTriangle,
-  Handshake,
-  ScrollText,
-  ClipboardCheck,
-  Workflow,
   ArrowRight,
   ChevronRight,
   Lock,
@@ -28,76 +20,25 @@ import {
   ShieldCheck,
   ShieldAlert,
   Settings,
-  Timer,
-  Droplets,
-  FileCheck,
-  Brain,
-  Cpu,
+  Camera,
+  CheckCircle,
   Fingerprint,
-  Globe,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
-/* ── FL Monogram SVG ──────────────────────────────────── */
-function FLMonogram({ className = "", size = 64 }: { className?: string; size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 100 100"
-      fill="none"
-      className={className}
-    >
-      <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="1" />
-      <text
-        x="50"
-        y="58"
-        textAnchor="middle"
-        fontFamily="var(--font-display), Georgia, serif"
-        fontSize="42"
-        fontStyle="italic"
-        fontWeight="300"
-        fill="currentColor"
-      >
-        FL
-      </text>
-    </svg>
-  );
-}
-
-/* ── Trust Bar Feature Item (new: icon box style) ─────── */
-function TrustFeatureItem({
-  icon: Icon,
-  label,
-  sublabel,
-}: {
-  icon: React.ElementType;
-  label: string;
-  sublabel: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 px-5 py-5">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#E0E0DA] bg-[#F0F0EC]/50">
-        <Icon className="h-5 w-5 text-[#0B0B0F]/70" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-sm font-semibold leading-tight text-[#0B0B0F]">{label}</span>
-        <span className="text-xs text-[#6B6B73]">{sublabel}</span>
-      </div>
-    </div>
-  );
-}
-
-/* ── Role Card (new: icons, accent underline, sublabels, pill buttons) ── */
+/* -- Role Card ----------------------------------------------------------- */
 function RoleCard({
   title,
+  description,
   features,
   cta,
   href,
   accent = false,
 }: {
   title: string;
-  features: { icon: React.ElementType; label: string; sublabel?: string }[];
+  description: string;
+  features: string[];
   cta: string;
   href: string;
   accent?: boolean;
@@ -107,22 +48,15 @@ function RoleCard({
       <h3 className="font-display text-lg font-bold tracking-wide text-[#0B0B0F]">
         {title}
       </h3>
-      <div className="mb-6 mt-2 h-0.5 w-10 bg-[#1E3A5F]" />
-
-      <ul className="space-y-5 flex-1">
+      <p className="text-sm text-[#6B6B73] mt-2 mb-6">{description}</p>
+      <ul className="space-y-3 flex-1">
         {features.map((f) => (
-          <li key={f.label} className="flex items-start gap-3">
-            <f.icon className="mt-0.5 h-5 w-5 shrink-0 text-[#0B0B0F]/60" />
-            <div>
-              <span className="text-sm font-medium text-[#0B0B0F]">{f.label}</span>
-              {f.sublabel && (
-                <p className="text-xs text-[#6B6B73]">{f.sublabel}</p>
-              )}
-            </div>
+          <li key={f} className="flex items-center gap-2 text-sm text-[#0B0B0F]">
+            <CheckCircle className="w-4 h-4 text-[#1E3A5F] shrink-0" />
+            {f}
           </li>
         ))}
       </ul>
-
       <div className="mt-8">
         <Link
           href={href}
@@ -140,80 +74,21 @@ function RoleCard({
   );
 }
 
-/* ── Pipeline Step ────────────────────────────────────── */
-function PipelineStep({
-  step,
-  label,
-  description,
-  isLast = false,
-}: {
-  step: string;
-  label: string;
-  description: string;
-  isLast?: boolean;
-}) {
-  return (
-    <div className="flex items-start gap-4 flex-1 min-w-0">
-      <div className="flex flex-col items-center shrink-0">
-        <div className="w-10 h-10 rounded-full border border-[#1E3A5F] flex items-center justify-center">
-          <span className="font-display text-lg text-[#1E3A5F] italic">{step}</span>
-        </div>
-      </div>
-      <div className="min-w-0">
-        <p className="font-body text-sm font-semibold text-[#0B0B0F] tracking-wide">{label}</p>
-        <p className="font-body text-xs text-[#6B6B73] mt-1 leading-relaxed">{description}</p>
-      </div>
-      {!isLast && (
-        <ChevronRight className="w-4 h-4 text-[#1E3A5F]/40 shrink-0 mt-3 hidden lg:block" />
-      )}
-    </div>
-  );
-}
-
-/* ── Agent Card ───────────────────────────────────────── */
-function AgentCard({
-  icon: Icon,
-  name,
-  role,
-  provider,
-}: {
-  icon: React.ElementType;
-  name: string;
-  role: string;
-  provider: string;
-}) {
-  return (
-    <div className="card-lift group bg-white rounded-lg p-6 border border-[#E0E0DA] hover:border-[#1E3A5F]/30 transition-colors duration-300">
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 rounded-full bg-[#0B0B0F] flex items-center justify-center agent-pulse">
-          <Icon className="w-4 h-4 text-[#FAFAF8]" strokeWidth={1.5} />
-        </div>
-        <span className="font-body text-[10px] tracking-[0.15em] uppercase text-[#1E3A5F] bg-[#1E3A5F]/5 px-2 py-1 rounded">
-          {provider}
-        </span>
-      </div>
-      <h4 className="font-display text-xl text-[#0B0B0F] mb-1">{name}</h4>
-      <p className="font-body text-xs text-[#6B6B73] leading-relaxed">{role}</p>
-    </div>
-  );
-}
-
-/* ── Page ──────────────────────────────────────────────── */
+/* -- Page ----------------------------------------------------------------- */
 export default function HomePage() {
   const { user } = useAuth();
 
-  // Role-specific dashboard path
   const dashboardPath = user?.role === "talent"
     ? "/talent/dashboard"
-    : user?.role === "brand"
-    ? "/brand/dashboard"
+    : user?.role === "client" || user?.role === "brand"
+    ? "/client/dashboard"
     : user?.role === "agent"
     ? "/agent/dashboard"
     : "/";
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] relative noise-bg">
-      {/* ─── Navigation (auth-aware: shows dashboard links when logged in) ─── */}
+      {/* -- Navigation -- */}
       <nav className="relative z-10 flex items-center justify-between px-8 lg:px-16 h-20 border-b border-[#E0E0DA] bg-white">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#0B0B0F]">
@@ -222,9 +97,6 @@ export default function HomePage() {
           <div className="flex flex-col">
             <span className="font-body text-lg font-bold tracking-[0.2em] text-[#0B0B0F]">
               FACE LIBRARY
-            </span>
-            <span className="font-body text-[9px] font-light tracking-[0.25em] text-[#6B6B73]">
-              LIKENESS INFRASTRUCTURE
             </span>
           </div>
         </Link>
@@ -235,9 +107,8 @@ export default function HomePage() {
             </Link>
           )}
           <Link href="/talent/library" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">Library</Link>
-          <Link href="#features" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">Features</Link>
           <Link href="#how-it-works" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">How It Works</Link>
-          <Link href="/agents" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">Agents</Link>
+          <Link href="#for-you" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">For You</Link>
         </div>
         <div className="flex items-center gap-3">
           {!user ? (
@@ -257,45 +128,33 @@ export default function HomePage() {
               </Link>
             </>
           )}
-          <Link href="/claw-console" className="font-body text-sm font-medium text-[#0B0B0F] border border-[#0B0B0F] px-5 py-2 rounded-full hover:bg-[#0B0B0F] hover:text-[#FAFAF8] transition-all duration-300">
-            Console
-          </Link>
         </div>
       </nav>
 
-      {/* ─── Hero (centered + image) ─── */}
+      {/* -- Hero -- */}
       <section className="relative z-10 overflow-hidden bg-white">
-        {/* Background glow */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#1E3A5F]/5 via-transparent to-transparent pointer-events-none" />
-
         <div className="container mx-auto flex flex-col items-center px-6 py-16 md:py-20">
-          {/* Text — centered */}
-          <div className="relative z-10 flex flex-col items-center text-center max-w-2xl">
+          <div className="relative z-10 flex flex-col items-center text-center max-w-3xl">
             <h1 className="animate-reveal animate-reveal-1 font-display text-4xl font-semibold leading-[1.1] tracking-tight text-[#0B0B0F] md:text-5xl lg:text-6xl">
-              Secure Likeness
+              Protect and License Faces
               <br />
-              <span className="italic">Licensing</span> Infrastructure
+              <span className="italic">in the Age of AI</span>
             </h1>
-            <div className="animate-reveal animate-reveal-2 mt-6 flex items-center gap-3">
-              <div className="h-8 w-1 rounded-full bg-[#1E3A5F]" />
-              <p className="text-lg text-[#6B6B73] md:text-xl">
-                Control. License. Protect.
-              </p>
-            </div>
-            <p className="animate-reveal animate-reveal-3 font-body text-base text-[#6B6B73] mt-6 max-w-lg leading-relaxed">
-              The AI-powered permission and monetization layer for human identity
-              in generative AI. Protect your likeness. Control your narrative.
+            <p className="animate-reveal animate-reveal-2 font-body text-base text-[#6B6B73] mt-6 max-w-xl leading-relaxed">
+              Verify, certify, license digital likeness,
+              and track its use across apps or clients.
             </p>
-            <div className="animate-reveal animate-reveal-4 flex flex-wrap justify-center gap-4 mt-8">
+            <div className="animate-reveal animate-reveal-3 flex flex-wrap justify-center gap-4 mt-8">
               <Link
                 href="/talent/register"
                 className="inline-flex items-center gap-2 bg-[#0B0B0F] text-[#FAFAF8] font-body text-sm font-medium tracking-wide py-3.5 px-8 rounded-full hover:bg-[#1E3A5F] transition-colors duration-300"
               >
-                Apply as Talent
+                Register as Talent
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/brand/register"
+                href="/client/register"
                 className="inline-flex items-center gap-2 border border-[#0B0B0F] text-[#0B0B0F] font-body text-sm font-medium tracking-wide py-3.5 px-8 rounded-full hover:bg-[#0B0B0F] hover:text-[#FAFAF8] transition-all duration-300"
               >
                 License a Likeness
@@ -304,305 +163,169 @@ export default function HomePage() {
           </div>
 
           {/* Hero image */}
-          <div className="relative z-0 mt-10 w-full max-w-4xl animate-reveal animate-reveal-5">
+          <div className="relative z-0 mt-10 w-full max-w-4xl animate-reveal animate-reveal-4">
             <Image
               src="/hero-group.png"
-              alt="Face Library holographic face visualization — four digital faces rendered in blue wireframe"
+              alt="Face Library — digital faces rendered for licensing"
               width={1200}
               height={520}
               className="w-full h-auto object-contain max-h-[520px] mx-auto"
               priority
             />
-            {/* Soft fade at the bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
           </div>
         </div>
       </section>
 
-      {/* ─── Trust Bar (static grid with icon boxes) ─── */}
-      <section id="features" className="relative z-10 bg-white py-6">
+      {/* -- How It Works (4 steps) -- */}
+      <section id="how-it-works" className="relative z-10 bg-white py-16">
         <div className="container mx-auto px-6">
-          <div className="rounded-xl border border-[#E0E0DA] bg-white">
-            <div className="grid grid-cols-2 divide-x divide-[#E0E0DA] md:grid-cols-3 lg:grid-cols-6">
-              <TrustFeatureItem icon={FileText} label="AI-Generated" sublabel="IP-Contracts" />
-              <TrustFeatureItem icon={Droplets} label="Watermarked" sublabel="Drafts" />
-              <TrustFeatureItem icon={Shield} label="Escrow" sublabel="Protection" />
-              <TrustFeatureItem icon={Clock} label="Time-Stamping" sublabel="& Tracking" />
-              <TrustFeatureItem icon={Brain} label="AI-Protected" sublabel="Content Control" />
-              <TrustFeatureItem icon={Scale} label="UK Law" sublabel="Applied" />
-            </div>
+          <h2 className="font-display text-2xl font-semibold text-center text-[#0B0B0F] mb-12">
+            How it Works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            {[
+              { step: "1", icon: Camera, label: "Register", desc: "Submit your face and profile information" },
+              { step: "2", icon: ShieldCheck, label: "Verify", desc: "Identity verification and preference setup" },
+              { step: "3", icon: FileText, label: "License", desc: "AI-generated contracts with UK law compliance" },
+              { step: "4", icon: Eye, label: "Track", desc: "Watermark tracking and usage monitoring" },
+            ].map((s, i) => (
+              <div key={s.step} className="flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-full bg-[#0B0B0F] flex items-center justify-center mb-4">
+                  <s.icon className="w-6 h-6 text-[#FAFAF8]" />
+                </div>
+                <p className="font-body text-xs text-[#1E3A5F] font-medium mb-1">{s.step}.</p>
+                <h3 className="font-body text-sm font-semibold text-[#0B0B0F]">{s.label}</h3>
+                <p className="font-body text-xs text-[#6B6B73] mt-1">{s.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ─── User Types (Role Cards with icons + sublabels + pill buttons) ─── */}
-      <section className="relative z-10 px-8 lg:px-16 py-20 lg:py-28">
+      {/* -- Verified Faces (Talent Library Preview) -- */}
+      <section className="relative z-10 bg-[#FAFAF8] py-16">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-display text-2xl font-semibold text-[#0B0B0F]">
+              Verified Faces Available for Licensing
+            </h2>
+            <Link href="/talent/library" className="font-body text-sm text-[#1E3A5F] hover:underline flex items-center gap-1">
+              Explore All <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="aspect-[3/4] rounded-lg bg-[#E0E0DA]/50 border border-[#E0E0DA] overflow-hidden">
+                <div className="w-full h-full flex items-center justify-center">
+                  <User className="w-8 h-8 text-[#6B6B73]/30" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* -- Role Cards -- */}
+      <section id="for-you" className="relative z-10 px-8 lg:px-16 py-20">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-14">
-            <p className="font-body text-xs tracking-[0.25em] uppercase text-[#1E3A5F] mb-3">
-              Three Portals
-            </p>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-light text-[#0B0B0F] leading-tight">
-              Built for every side of
-              <br />
-              <span className="italic">the licensing equation</span>
+          <div className="mb-14 text-center">
+            <h2 className="font-display text-3xl sm:text-4xl font-semibold text-[#0B0B0F]">
+              Built for every side of the licensing equation
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <RoleCard
-              title="FOR TALENT"
+              title="For Talent"
+              description="Register, verify, and control your likeness."
               features={[
-                { icon: User, label: "Generate Your Avatar" },
-                { icon: ShieldCheck, label: "Approve Every Use" },
-                { icon: ShieldAlert, label: "Restrict Ad Categories" },
-                { icon: Clock, label: "Simple Time-Based Licensing" },
+                "Upload your face photo",
+                "Set licensing preferences",
+                "Approve every use",
+                "Track with watermarks",
               ]}
               cta="Apply as Talent"
               href="/talent/register"
             />
             <RoleCard
-              title="FOR AGENTS"
+              title="For Agents"
+              description="Manage your talent roster and approvals."
               features={[
-                { icon: Settings, label: "Centralized Approvals" },
-                { icon: FileText, label: "IP Contract Templates", sublabel: "AI can adjust & customize" },
-                { icon: Timer, label: "Time-Stamping Usage Tracking" },
+                "Manage talent roster",
+                "Centralized approvals",
+                "Review license requests",
+                "Contract templates",
               ]}
               cta="Apply as Agent"
               href="/agent/register"
             />
             <RoleCard
-              title="FOR BRANDS"
+              title="For Clients"
+              description="Search and license digital likeness for campaigns."
               features={[
-                { icon: Search, label: "AI-Driven Model Search" },
-                { icon: Droplets, label: "Watermarked Drafts", sublabel: "Preview Mode" },
-                { icon: FileCheck, label: "IP-Generated Contract" },
+                "Browse talent library",
+                "Submit license requests",
+                "AI-generated contracts",
+                "Stripe payments",
               ]}
               cta="Get Started"
-              href="/brand/register"
+              href="/client/register"
               accent
             />
           </div>
         </div>
       </section>
 
-      {/* ─── Divider ─── */}
-      <div className="relative z-10 px-8 lg:px-16">
-        <div className="max-w-6xl mx-auto h-px bg-gradient-to-r from-transparent via-[#E0E0DA] to-transparent" />
-      </div>
-
-      {/* ─── How It Works ─── */}
-      <section id="how-it-works" className="relative z-10 px-8 lg:px-16 py-20 lg:py-28">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-14">
-            <p className="font-body text-xs tracking-[0.25em] uppercase text-[#1E3A5F] mb-3">
-              Multi-Agent Pipeline
-            </p>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-light text-[#0B0B0F] leading-tight">
-              From request to contract
-              <br />
-              <span className="italic">in seven autonomous steps</span>
-            </h2>
-          </div>
-
-          <div className="bg-[#0B0B0F] rounded-lg p-8 lg:p-12">
-            {/* Pipeline flow */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-0">
-              {/* Left column: Steps 1-4 */}
-              <div className="space-y-1">
-                {[
-                  { step: 1, label: "Compliance & Risk", desc: "Scans content, brand, legal, ethical, and geographic risk across 5 dimensions", model: "DeepSeek V3.2 + GLM-4 Plus", color: "#B45309", tag: "Blocking" },
-                  { step: 2, label: "Price Negotiation", desc: "Dynamic pricing based on talent preferences, market rates, and SDG 8 fair compensation", model: "Qwen3 235B Instruct", color: "#1E3A5F", tag: null },
-                  { step: 3, label: "Contract Generation", desc: "12-section UK-law-compliant IP agreement covering GDPR, Copyright Act 1988, dispute resolution", model: "GLM-4 Plus (Z.AI)", color: "#0F766E", tag: null },
-                  { step: 4, label: "Avatar Prompt", desc: "Detailed image generation prompt crafted from talent profile and campaign requirements", model: "DeepSeek V3.2", color: "#7C3AED", tag: null },
-                ].map((s, i) => (
-                  <div key={s.step} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-display text-base font-bold shrink-0" style={{ backgroundColor: s.color }}>
-                        {s.step}
-                      </div>
-                      {i < 3 && <div className="w-0.5 h-6 bg-gradient-to-b from-white/25 to-white/5" />}
-                    </div>
-                    <div className="pb-4 pt-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-body text-sm font-semibold text-white">{s.label}</h3>
-                        {s.tag && <span className="font-body text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 uppercase tracking-wider">{s.tag}</span>}
-                      </div>
-                      <p className="font-body text-xs text-white/50 mt-1 leading-relaxed">{s.desc}</p>
-                      <span className="inline-block font-mono text-[10px] text-white/25 mt-1.5 px-2 py-0.5 rounded bg-white/5">{s.model}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Right column: Steps 5-7 + Audit */}
-              <div className="space-y-1">
-                {[
-                  { step: 5, label: "Likeness Fingerprint", desc: "Scans for unauthorized use of talent likeness across platforms with violation detection", model: "DeepSeek V3.2", color: "#E11D48", tag: null },
-                  { step: 6, label: "Web3 Rights", desc: "ERC-721 smart contract metadata generated on Polygon for on-chain IP rights tracking", model: "Local (Polygon)", color: "#0891B2", tag: null },
-                  { step: 7, label: "Audit & Logging", desc: "Every agent action logged with timestamps, model identity, and tokens consumed", model: "Local (Claw Console)", color: "#6B21A8", tag: "Every Step" },
-                ].map((s, i) => (
-                  <div key={s.step} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-display text-base font-bold shrink-0" style={{ backgroundColor: s.color }}>
-                        {s.step}
-                      </div>
-                      {i < 2 && <div className="w-0.5 h-6 bg-gradient-to-b from-white/25 to-white/5" />}
-                    </div>
-                    <div className="pb-4 pt-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-body text-sm font-semibold text-white">{s.label}</h3>
-                        {s.tag && <span className={`font-body text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider ${s.tag === "Every Step" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>{s.tag}</span>}
-                      </div>
-                      <p className="font-body text-xs text-white/50 mt-1 leading-relaxed">{s.desc}</p>
-                      <span className="inline-block font-mono text-[10px] text-white/25 mt-1.5 px-2 py-0.5 rounded bg-white/5">{s.model}</span>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Human approval */}
-                <div className="flex gap-4 mt-2">
-                  <div className="flex flex-col items-center">
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-display text-base font-bold shrink-0 border-2 border-white/30 bg-transparent">
-                      ✓
-                    </div>
-                  </div>
-                  <div className="pt-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-body text-sm font-semibold text-white">Talent Approval</h3>
-                      <span className="font-body text-[9px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 uppercase tracking-wider">Human-in-the-Loop</span>
-                    </div>
-                    <p className="font-body text-xs text-white/50 mt-1 leading-relaxed">Talent reviews full pipeline results — risk score, price, contract — and approves or rejects</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Short-circuit + providers */}
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <p className="font-body text-xs text-amber-400/80">
-                  <span className="font-semibold">Short-circuit:</span>{" "}
-                  <span className="text-white/40">If Step 1 rejects, steps 2–7 are skipped</span>
-                </p>
-                <div className="flex gap-3 flex-wrap">
-                  {["FLock.io", "Z.AI", "OpenRouter", "Anyway SDK"].map((p) => (
-                    <span key={p} className="font-mono text-[10px] text-white/30 px-2 py-1 rounded bg-white/5">{p}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Divider ─── */}
-      <div className="relative z-10 px-8 lg:px-16">
-        <div className="max-w-6xl mx-auto h-px bg-gradient-to-r from-transparent via-[#E0E0DA] to-transparent" />
-      </div>
-
-      {/* ─── Agent Showcase ─── */}
-      <section id="agents" className="relative z-10 px-8 lg:px-16 py-20 lg:py-28">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-14">
-            <p className="font-body text-xs tracking-[0.25em] uppercase text-[#1E3A5F] mb-3">
-              Powered by OpenClaw
-            </p>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-light text-[#0B0B0F] leading-tight">
-              Nine autonomous agents
-              <br />
-              <span className="italic">working in concert</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <AgentCard
-              icon={AlertTriangle}
-              name="Compliance & Risk"
-              role="Scans requests for content risks, GDPR compliance, and ethical concerns."
-              provider="DeepSeek V3 + GLM-4"
-            />
-            <AgentCard
-              icon={Handshake}
-              name="Pricing Negotiator"
-              role="Proposes dynamic pricing and licensing terms on behalf of talent."
-              provider="Qwen3 235B"
-            />
-            <AgentCard
-              icon={ScrollText}
-              name="IP Contract"
-              role="Generates UK-law-compliant IP licensing contracts automatically."
-              provider="GLM-4.5 / GLM-4+"
-            />
-            <AgentCard
-              icon={Cpu}
-              name="Avatar Generation"
-              role="Generates image/avatar prompts for Z.AI content creation."
-              provider="DeepSeek V3"
-            />
-            <AgentCard
-              icon={Fingerprint}
-              name="Likeness Fingerprint"
-              role="Detects unauthorized use and generates scan reports across platforms."
-              provider="DeepSeek V3"
-            />
-            <AgentCard
-              icon={Globe}
-              name="Web3 Rights"
-              role="Generates blockchain contract metadata for on-chain IP rights (ERC-721)."
-              provider="Polygon"
-            />
-            <AgentCard
-              icon={Search}
-              name="Talent Discovery"
-              role="AI-driven talent discovery matching brand requirements to creator profiles."
-              provider="DeepSeek V3"
-            />
-            <AgentCard
-              icon={ClipboardCheck}
-              name="Audit & Logging"
-              role="Logs every transaction and monitors usage patterns across the platform."
-              provider="Local"
-            />
-            <AgentCard
-              icon={Workflow}
-              name="Pipeline Orchestrator"
-              role="Coordinates all 7 pipeline agents through the licensing flow end-to-end."
-              provider="Pipeline"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Trust Bar (dark stats) ─── */}
+      {/* -- Platform Features (dark section) -- */}
       <section className="relative z-10 bg-[#0B0B0F] text-[#FAFAF8]">
-        <div className="px-8 lg:px-16 py-16 lg:py-20">
+        <div className="px-8 lg:px-16 py-20">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <h2 className="font-display text-3xl sm:text-4xl font-semibold text-center mb-16">
+              Protect, Create, and License
+              <br />
+              <span className="italic">Your Digital Likeness</span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { icon: Shield, title: "IP Protection", desc: "UK-law-compliant contracts with GDPR compliance, moral rights, and AI training restrictions." },
+                { icon: Fingerprint, title: "Watermark Tracking", desc: "Track where your licensed content appears. Detect unauthorized use across platforms." },
+                { icon: CreditCard, title: "Stripe Payments", desc: "Secure payment processing. 90% goes to talent, 10% platform fee." },
+                { icon: FileText, title: "3 License Types", desc: "Standard, Exclusive, and Time-Limited options to fit every campaign need." },
+                { icon: Scale, title: "Manual Review", desc: "Every request goes through manual review before talent approval. No automated decisions." },
+                { icon: Lock, title: "Full Audit Trail", desc: "Complete history of every action, from request creation to payment completion." },
+              ].map((f) => (
+                <div key={f.title} className="p-6 rounded-lg border border-white/10">
+                  <f.icon className="w-8 h-8 text-[#FAFAF8]/60 mb-4" />
+                  <h3 className="font-body text-sm font-semibold text-white mb-2">{f.title}</h3>
+                  <p className="font-body text-xs text-white/50 leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-16 grid grid-cols-3 gap-8 text-center">
               <div>
-                <p className="font-display text-4xl lg:text-5xl font-light italic mb-2">100%</p>
-                <p className="font-body text-xs tracking-[0.2em] uppercase text-[#FAFAF8]/60">Secure &amp; Encrypted</p>
+                <p className="font-display text-4xl font-light italic mb-2">3</p>
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-[#FAFAF8]/60">License Types</p>
               </div>
               <div>
-                <p className="font-display text-4xl lg:text-5xl font-light italic mb-2">UK Law</p>
+                <p className="font-display text-4xl font-light italic mb-2">UK Law</p>
                 <p className="font-body text-xs tracking-[0.2em] uppercase text-[#FAFAF8]/60">Compliant Contracts</p>
               </div>
               <div>
-                <p className="font-display text-4xl lg:text-5xl font-light italic mb-2">9 Agents</p>
-                <p className="font-body text-xs tracking-[0.2em] uppercase text-[#FAFAF8]/60">7-Step Pipeline</p>
+                <p className="font-display text-4xl font-light italic mb-2">100%</p>
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-[#FAFAF8]/60">Secure & Tracked</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── CTA ─── */}
-      <section className="relative z-10 px-8 lg:px-16 py-20 lg:py-28 text-center">
+      {/* -- CTA -- */}
+      <section className="relative z-10 px-8 lg:px-16 py-20 text-center">
         <div className="max-w-2xl mx-auto">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#0B0B0F]/20 mx-auto mb-6">
-            <span className="font-display text-2xl font-bold italic text-[#0B0B0F]/20">FL</span>
-          </div>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-light text-[#0B0B0F] leading-tight mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl font-light text-[#0B0B0F] leading-tight mb-4">
             Your likeness,
             <br />
             <span className="italic">your terms</span>
@@ -620,7 +343,7 @@ export default function HomePage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/brand/register"
+              href="/client/register"
               className="inline-flex items-center gap-2 border border-[#0B0B0F] text-[#0B0B0F] font-body text-sm font-medium tracking-wide py-3.5 px-8 rounded-full hover:bg-[#0B0B0F] hover:text-[#FAFAF8] transition-all duration-300"
             >
               License a Likeness
@@ -629,24 +352,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── Footer (clean, focused) ─── */}
+      {/* -- Footer -- */}
       <footer className="relative z-10 border-t border-[#E0E0DA] bg-white">
         <div className="container mx-auto px-6 py-10">
-          {/* Trust line */}
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-3 text-lg font-semibold text-[#0B0B0F]">
-              <Lock className="h-5 w-5 text-[#6B6B73]" />
-              <span className="text-[#1E3A5F]">100%</span>
-              <span>Secure</span>
-              <span className="text-[#6B6B73]">&middot;</span>
-              <span className="font-bold">Time-Stamped</span>
-              <span className="text-[#6B6B73]">&middot;</span>
-              <span>Legally Enforceable</span>
-            </div>
-          </div>
-
-          {/* Bottom bar */}
-          <div className="mt-8 pt-6 border-t border-[#E0E0DA] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-6 w-6 items-center justify-center rounded-full border border-[#6B6B73]">
                 <span className="font-display text-[10px] font-bold italic text-[#6B6B73]">FL</span>
@@ -655,22 +364,9 @@ export default function HomePage() {
                 &copy; 2026 Face Library
               </span>
             </div>
-            <div className="flex items-center gap-1 font-body text-xs text-[#6B6B73]">
-              <span>Powered by</span>
-              <span className="font-semibold text-[#0B0B0F]">OpenClaw</span>
-              <span className="mx-1">&middot;</span>
-              <span className="font-semibold text-[#0B0B0F]">FLock.io</span>
-              <span className="mx-1">&middot;</span>
-              <span className="font-semibold text-[#0B0B0F]">Z.AI</span>
-              <span className="mx-1">&middot;</span>
-              <span className="font-semibold text-[#0B0B0F]">OpenRouter</span>
-            </div>
             <div className="flex items-center gap-4">
               <Link href="/talent/library" className="font-body text-xs text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">
                 Talent Library
-              </Link>
-              <Link href="/agents" className="font-body text-xs text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">
-                Agent Dashboard
               </Link>
               <Link href="#" className="font-body text-xs text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">
                 Privacy
