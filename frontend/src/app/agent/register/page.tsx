@@ -40,7 +40,7 @@ export default function AgentRegisterPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
 
   const inputClass =
-    "w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] placeholder-[#B0B0B8] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all";
+    "w-full bg-white border border-[#E0E0DA] rounded-lg px-4 py-3 font-body text-sm text-[#0B0B0F] placeholder-[#9B9BA3] focus:outline-none focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] transition-colors";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +98,7 @@ export default function AgentRegisterPage() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-8">
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#4F6AF6] to-[#6C8AFF] flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-full bg-[#0B0B0F] flex items-center justify-center mx-auto mb-6">
             <Check className="w-8 h-8 text-white" />
           </div>
           <h1 className="font-display text-3xl text-[#0B0B0F] mb-2">Agency Account Created!</h1>
@@ -112,18 +112,18 @@ export default function AgentRegisterPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <header className="flex items-center justify-center py-8">
-        <Link href="/" className="flex flex-col items-center gap-1">
-          <div className="flex items-center gap-2">
+      <header className="border-b border-[#E0E0DA] bg-white">
+        <div className="mx-auto max-w-6xl flex items-center justify-between px-6 py-5">
+          <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#0B0B0F]">
               <span className="font-display text-sm font-bold italic text-[#0B0B0F]">FL</span>
             </div>
-            <span className="font-body text-sm font-bold tracking-[0.2em] text-[#0B0B0F]">FACE LIBRARY</span>
-          </div>
-          <span className="font-body text-[10px] font-light tracking-[0.2em] text-[#9B9BA3]">
-            Secure Likeness Licensing Platform
-          </span>
-        </Link>
+            <span className="font-body text-sm font-bold tracking-[0.15em] text-[#0B0B0F]">FACE LIBRARY</span>
+          </Link>
+          <Link href="/login" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">
+            Sign in
+          </Link>
+        </div>
       </header>
 
       <main className="flex-1 flex items-start justify-center px-6 pb-16">
@@ -243,8 +243,8 @@ export default function AgentRegisterPage() {
                 <div
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                     agreedToTerms
-                      ? "border-[#4F6AF6] bg-[#4F6AF6]"
-                      : "border-[#C8C8D0] bg-white"
+                      ? "border-[#0B0B0F] bg-[#0B0B0F]"
+                      : "border-[#C0C0BA] bg-white"
                   }`}
                   onClick={() => setAgreedToTerms(!agreedToTerms)}
                 >
@@ -253,11 +253,11 @@ export default function AgentRegisterPage() {
               </div>
               <span className="font-body text-[13px] text-[#6B6B73] leading-relaxed">
                 I agree to the{" "}
-                <Link href="/privacy" className="underline text-[#4F6AF6] hover:text-[#3B56E0]">
+                <Link href="/privacy" className="underline text-[#0B0B0F] hover:no-underline">
                   Privacy Policy
                 </Link>{" "}
                 and{" "}
-                <Link href="/terms" className="underline text-[#4F6AF6] hover:text-[#3B56E0]">
+                <Link href="/terms" className="underline text-[#0B0B0F] hover:no-underline">
                   Terms &amp; Conditions
                 </Link>
               </span>
@@ -267,7 +267,7 @@ export default function AgentRegisterPage() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#4F6AF6] to-[#6C8AFF] text-white font-body text-[15px] font-semibold py-4 px-8 rounded-xl hover:shadow-lg hover:shadow-[#4F6AF6]/25 transition-all duration-300 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-[#0B0B0F] text-[#FAFAF8] font-body text-sm font-semibold py-3.5 px-8 rounded-lg hover:bg-[#1a1a22] transition-colors disabled:opacity-50"
               >
                 {status === "loading" ? "Creating..." : "Create Agency Account"}
                 <ArrowRight className="w-4 h-4" />

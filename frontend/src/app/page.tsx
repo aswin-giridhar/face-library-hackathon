@@ -107,7 +107,7 @@ export default function HomePage() {
             </Link>
           )}
           <Link href="/talent/library" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">Library</Link>
-          <Link href="#how-it-works" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">How It Works</Link>
+          <Link href="/how-it-works" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">How It Works</Link>
           <Link href="#for-you" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">For You</Link>
         </div>
         <div className="flex items-center gap-3">

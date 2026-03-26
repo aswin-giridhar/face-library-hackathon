@@ -42,6 +42,7 @@ export default function ClientRegisterPage() {
   const [form, setForm] = useState({
     company_name: "",
     email: "",
+    confirmEmail: "",
     phone: "",
     website: "",
     ai_tools_used: "",
@@ -58,6 +59,10 @@ export default function ClientRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.email !== form.confirmEmail) {
+      setErrorMsg("Email addresses do not match.");
+      return;
+    }
     if (!form.industry) {
       setErrorMsg("Please select an industry.");
       return;
@@ -106,8 +111,8 @@ export default function ClientRegisterPage() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-8">
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#4F6AF6] to-[#6C8AFF] flex items-center justify-center mx-auto mb-6">
-            <Check className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 rounded-full bg-[#0B0B0F] flex items-center justify-center mx-auto mb-6">
+            <Check className="w-8 h-8 text-[#FAFAF8]" />
           </div>
           <h1 className="font-display text-3xl text-[#0B0B0F] mb-2">Account Created!</h1>
           <p className="font-body text-[#6B6B73] mb-6">
@@ -121,18 +126,18 @@ export default function ClientRegisterPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-center py-8">
-        <Link href="/" className="flex flex-col items-center gap-1">
-          <div className="flex items-center gap-2">
+      <header className="border-b border-[#E0E0DA] bg-white">
+        <div className="mx-auto max-w-6xl flex items-center justify-between px-6 py-5">
+          <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#0B0B0F]">
               <span className="font-display text-sm font-bold italic text-[#0B0B0F]">FL</span>
             </div>
-            <span className="font-body text-sm font-bold tracking-[0.2em] text-[#0B0B0F]">FACE LIBRARY</span>
-          </div>
-          <span className="font-body text-[10px] font-light tracking-[0.2em] text-[#9B9BA3]">
-            Secure Likeness Licensing Platform
-          </span>
-        </Link>
+            <span className="font-body text-sm font-bold tracking-[0.15em] text-[#0B0B0F]">FACE LIBRARY</span>
+          </Link>
+          <Link href="/login" className="font-body text-sm text-[#6B6B73] hover:text-[#0B0B0F] transition-colors">
+            Sign in
+          </Link>
+        </div>
       </header>
 
       {/* Form */}
@@ -156,42 +161,46 @@ export default function ClientRegisterPage() {
                 value={form.company_name}
                 onChange={(e) => update("company_name", e.target.value)}
                 placeholder="Company Name"
-                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] placeholder-[#B0B0B8] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all"
+                className="w-full bg-white border border-[#E0E0DA] rounded-lg px-4 py-3 font-body text-sm text-[#0B0B0F] placeholder-[#9B9BA3] focus:outline-none focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] transition-colors"
               />
             </div>
 
-            {/* Company Email */}
-            <div>
+            {/* Company Email + Confirm Email */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input
                 type="email"
                 required
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
                 placeholder="Company Email"
-                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] placeholder-[#B0B0B8] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all"
+                className="w-full bg-white border border-[#E0E0DA] rounded-lg px-4 py-3 font-body text-sm text-[#0B0B0F] placeholder-[#9B9BA3] focus:outline-none focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] transition-colors"
+              />
+              <input
+                type="email"
+                required
+                value={form.confirmEmail}
+                onChange={(e) => update("confirmEmail", e.target.value)}
+                placeholder="Confirm Email"
+                className="w-full bg-white border border-[#E0E0DA] rounded-lg px-4 py-3 font-body text-sm text-[#0B0B0F] placeholder-[#9B9BA3] focus:outline-none focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] transition-colors"
               />
             </div>
 
-            {/* Phone */}
-            <div>
+            {/* Phone + Website */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input
                 type="tel"
                 required
                 value={form.phone}
                 onChange={(e) => update("phone", e.target.value)}
                 placeholder="Phone"
-                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] placeholder-[#B0B0B8] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all"
+                className="w-full bg-white border border-[#E0E0DA] rounded-lg px-4 py-3 font-body text-sm text-[#0B0B0F] placeholder-[#9B9BA3] focus:outline-none focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] transition-colors"
               />
-            </div>
-
-            {/* Website (optional) */}
-            <div>
               <input
                 type="url"
                 value={form.website}
                 onChange={(e) => update("website", e.target.value)}
                 placeholder="Website (optional)"
-                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] placeholder-[#B0B0B8] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all"
+                className="w-full bg-white border border-[#E0E0DA] rounded-lg px-4 py-3 font-body text-sm text-[#0B0B0F] placeholder-[#9B9BA3] focus:outline-none focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] transition-colors"
               />
             </div>
 
@@ -202,7 +211,7 @@ export default function ClientRegisterPage() {
                 onChange={(e) => update("ai_tools_used", e.target.value)}
                 placeholder="AI Tools Used (optional) — e.g. Midjourney, DALL-E, Runway..."
                 rows={3}
-                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] placeholder-[#B0B0B8] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all resize-none"
+                className="w-full bg-white border border-[#E0E0DA] rounded-lg px-4 py-3 font-body text-sm text-[#0B0B0F] placeholder-[#9B9BA3] focus:outline-none focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] transition-colors resize-none"
               />
             </div>
 
@@ -213,7 +222,7 @@ export default function ClientRegisterPage() {
                 value={form.role_title}
                 onChange={(e) => update("role_title", e.target.value)}
                 required
-                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all appearance-none"
+                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#0B0B0F] transition-all appearance-none"
               >
                 <option value="" disabled>Select your role...</option>
                 {roles.map((role) => (
@@ -229,7 +238,7 @@ export default function ClientRegisterPage() {
                 value={form.referral_source}
                 onChange={(e) => update("referral_source", e.target.value)}
                 required
-                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#4F6AF6] transition-all appearance-none"
+                className="w-full bg-[#F8F8FA] border border-[#E8E8EC] rounded-xl px-5 py-3.5 font-body text-[15px] text-[#0B0B0F] focus:outline-none focus:ring-2 focus:ring-[#4F6AF6]/30 focus:border-[#0B0B0F] transition-all appearance-none"
               >
                 <option value="" disabled>Select referral source...</option>
                 {referralSources.map((src) => (
@@ -248,17 +257,17 @@ export default function ClientRegisterPage() {
                     key={ind}
                     className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border cursor-pointer transition-all ${
                       form.industry === ind
-                        ? "border-[#4F6AF6] bg-[#4F6AF6]/5"
-                        : "border-[#E8E8EC] bg-[#F8F8FA] hover:border-[#D0D0D8]"
+                        ? "border-[#1E3A5F] bg-[#1E3A5F]/5"
+                        : "border-[#E0E0DA] bg-white hover:border-[#C0C0BA]"
                     }`}
                   >
                     <div
                       className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                        form.industry === ind ? "border-[#4F6AF6]" : "border-[#C8C8D0]"
+                        form.industry === ind ? "border-[#0B0B0F]" : "border-[#C0C0BA]"
                       }`}
                     >
                       {form.industry === ind && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#4F6AF6]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#0B0B0F]" />
                       )}
                     </div>
                     <span className="font-body text-[13px] text-[#0B0B0F]">{ind}</span>
@@ -280,8 +289,8 @@ export default function ClientRegisterPage() {
                   <div
                     className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
                       agreedToTerms
-                        ? "border-[#4F6AF6] bg-[#4F6AF6]"
-                        : "border-[#C8C8D0] bg-white"
+                        ? "border-[#0B0B0F] bg-[#0B0B0F]"
+                        : "border-[#C0C0BA] bg-white"
                     }`}
                   >
                     {agreedToTerms && <Check className="w-3.5 h-3.5 text-white" />}
@@ -289,11 +298,11 @@ export default function ClientRegisterPage() {
                 </div>
                 <span className="font-body text-[13px] text-[#6B6B73] leading-relaxed">
                   I agree to the{" "}
-                  <Link href="/terms" className="underline text-[#4F6AF6] hover:text-[#3B56E0]">
+                  <Link href="/terms" className="underline text-[#0B0B0F] underline hover:no-underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="/privacy" className="underline text-[#4F6AF6] hover:text-[#3B56E0]">
+                  <Link href="/privacy" className="underline text-[#0B0B0F] underline hover:no-underline">
                     Privacy Policy
                   </Link>
                 </span>
@@ -305,7 +314,7 @@ export default function ClientRegisterPage() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#4F6AF6] to-[#6C8AFF] text-white font-body text-[15px] font-semibold py-4 px-8 rounded-xl hover:shadow-lg hover:shadow-[#4F6AF6]/25 transition-all duration-300 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-[#0B0B0F] text-[#FAFAF8] font-body text-sm font-semibold py-3.5 px-8 rounded-lg hover:bg-[#1a1a22] transition-colors disabled:opacity-50"
               >
                 {status === "loading" ? "Creating..." : "Create Account"}
                 <ArrowRight className="w-4 h-4" />
