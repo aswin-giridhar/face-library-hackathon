@@ -1,0 +1,190 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter, useParams } from "next/navigation";
+import { ArrowLeft, CheckCircle, MapPin, Shield } from "lucide-react";
+
+const talentDB: Record<string, { name: string; image: string; faceId: string; gender: string; age: number; location: string; categories: string[]; regions: string[]; usageAllowed: string[]; bio: string; portfolio: string[]; pricing: Record<string, string> }> = {
+  "1": { name: "Sophia Anderson", image: "https://images.unsplash.com/flagged/photo-1573582677725-863b570e3c00?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600", faceId: "FL-238491", gender: "Female", age: 28, location: "London, UK", categories: ["Fashion", "Beauty", "Lifestyle"], regions: ["Global", "UK", "Europe"], usageAllowed: ["Social Media", "Website", "Print", "TV"], bio: "Professional digital face available for AI-generated campaigns. Experienced in fashion, beauty, and lifestyle content.", portfolio: ["https://images.unsplash.com/flagged/photo-1573582677725-863b570e3c00?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600", "https://images.unsplash.com/photo-1654028859265-0e8b12a67aae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600", "https://images.unsplash.com/photo-1633419798503-0b0c628f267c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"], pricing: { social: "£500/month", website: "£800/month", print: "£1,200/campaign", tv: "£2,500/campaign" } },
+  "2": { name: "Alex Turner", image: "https://images.unsplash.com/photo-1762522927402-f390672558d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600", faceId: "FL-238492", gender: "Male", age: 32, location: "Manchester, UK", categories: ["Tech", "Lifestyle", "Sports"], regions: ["Global", "UK"], usageAllowed: ["Social Media", "Website", "TV"], bio: "Tech and lifestyle specialist. Available for digital campaigns and AI-generated content.", portfolio: ["https://images.unsplash.com/photo-1762522927402-f390672558d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"], pricing: { social: "£400/month", website: "£700/month", print: "£1,000/campaign", tv: "£2,000/campaign" } },
+};
+
+export default function TalentProfilePage() {
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+  const [showLicenseModal, setShowLicenseModal] = useState(false);
+
+  const talent = talentDB[id] || talentDB["1"];
+
+  return (
+    <div className="min-h-screen bg-white">
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-9 h-9 bg-black text-white flex items-center justify-center text-xs font-bold">FL</div>
+            <span className="font-semibold text-base tracking-wide">FACE LIBRARY</span>
+          </Link>
+          <button onClick={() => router.push("/discover-talent")} className="flex items-center gap-2 text-sm text-gray-600 hover:text-black">
+            <ArrowLeft className="w-4 h-4" /> Back to Discovery
+          </button>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        <div className="grid grid-cols-3 gap-8 mb-10">
+          <div className="col-span-1">
+            <div className="relative aspect-[3/4] bg-white rounded-xl overflow-hidden border border-gray-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={talent.image} alt={talent.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-white/20 text-3xl font-bold tracking-wider -rotate-12">FACE LIBRARY</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-2">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-4xl font-bold">{talent.name}</h1>
+                <CheckCircle className="w-7 h-7 text-green-600" />
+              </div>
+              <div className="flex items-center gap-4 text-gray-600 mb-4">
+                <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{talent.location}</span>
+                <span>&bull;</span><span>{talent.gender}</span>
+                <span>&bull;</span><span>{talent.age} years</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Shield className="w-4 h-4" /> Face ID: {talent.faceId}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-2">About</h2>
+              <p className="text-gray-700 leading-relaxed">{talent.bio}</p>
+            </div>
+
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-3">Categories</h2>
+              <div className="flex flex-wrap gap-2">
+                {talent.categories.map((c) => <span key={c} className="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">{c}</span>)}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold mb-3">Available Regions</h2>
+              <div className="flex flex-wrap gap-2">
+                {talent.regions.map((r) => <span key={r} className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">{r}</span>)}
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold mb-3">Usage Allowed</h2>
+              <div className="flex flex-wrap gap-2">
+                {talent.usageAllowed.map((u) => <span key={u} className="px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">{u}</span>)}
+              </div>
+            </div>
+
+            <button onClick={() => setShowLicenseModal(true)} className="w-full bg-black text-white py-4 rounded-xl text-lg font-semibold hover:bg-gray-800 transition-colors">
+              Select Talent
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-10">
+          <h2 className="text-2xl font-semibold mb-6">Portfolio</h2>
+          <div className="grid grid-cols-3 gap-6">
+            {talent.portfolio.map((img, i) => (
+              <div key={i} className="relative aspect-[3/4] bg-white rounded-xl overflow-hidden border border-gray-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={img} alt={`Portfolio ${i + 1}`} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="text-white/20 text-2xl font-bold tracking-wider -rotate-12">FACE LIBRARY</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-xl p-8">
+          <h2 className="text-2xl font-semibold mb-6">Licensing Pricing</h2>
+          <div className="grid grid-cols-4 gap-6">
+            {Object.entries(talent.pricing).map(([key, val]) => (
+              <div key={key} className="bg-white rounded-xl p-6 border border-gray-200">
+                <p className="text-sm text-gray-600 mb-2 capitalize">{key}</p>
+                <p className="text-2xl font-bold">{val}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      {showLicenseModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold">License Request</h2>
+              <button onClick={() => setShowLicenseModal(false)} className="text-gray-500 hover:text-black">&times;</button>
+            </div>
+            <div className="flex items-center gap-4 mb-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={talent.image} alt={talent.name} className="w-16 h-16 rounded-full object-cover" />
+              <div>
+                <h3 className="font-semibold text-lg">{talent.name}</h3>
+                <p className="text-sm text-gray-600">Face ID: {talent.faceId}</p>
+              </div>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); setShowLicenseModal(false); router.push("/client/dashboard"); }}>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Campaign Name</label>
+                  <input type="text" placeholder="e.g., Summer Beauty Campaign 2026" required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Usage Type</label>
+                  <select required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
+                    <option value="">Select usage type</option>
+                    <option value="social">Social Media</option>
+                    <option value="website">Website</option>
+                    <option value="print">Print</option>
+                    <option value="tv">TV Commercial</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Duration</label>
+                    <select required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
+                      <option value="">Select</option>
+                      <option value="1">1 month</option>
+                      <option value="3">3 months</option>
+                      <option value="6">6 months</option>
+                      <option value="12">12 months</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Region</label>
+                    <select required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
+                      <option value="">Select</option>
+                      <option value="global">Global</option>
+                      <option value="uk">UK</option>
+                      <option value="europe">Europe</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Additional Details</label>
+                  <textarea placeholder="Describe your campaign..." rows={3} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setShowLicenseModal(false)} className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:border-black hover:text-black transition-colors font-medium">Cancel</button>
+                <button type="submit" className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium">Submit License Request</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
